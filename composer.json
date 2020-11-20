@@ -1,8 +1,8 @@
 {
-    "name": "jingwu/log_es",
+    "name": "yd/log_es",
     "description": "日志落地到ES",
     "keywords": ["log", "eslasticsearch", "beanstalk", "flume"],
-    "homepage": "https://github.com/jingwu15/log_es.git",
+    "homepage": "https://github.com/yundun-php/log_es.git",
     "license": "MIT",
     "authors": [
         {
@@ -12,7 +12,7 @@
     ],
     "autoload": {
         "psr-4": {
-            "Jingwu\\LogEs\\": "src/log_es/"
+            "Jingwu\\LogEs\\": "src/"
         }
     },
     "require": {
