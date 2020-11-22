@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "85962e81be9ad92292fac708238a7e1b",
+    "content-hash": "8970179da0fa9d0af0e9f5f243be921e",
     "packages": [
         {
             "name": "elasticsearch/elasticsearch",
@@ -184,7 +184,7 @@
         },
         {
             "name": "jingwu/phpbeanstalk",
-            "version": "0.1.9",
+            "version": "0.2.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jingwu15/phpbeanstalk.git",
