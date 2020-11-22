@@ -10,11 +10,12 @@
 namespace Jingwu\LogEs;
 
 use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 use Monolog\Handler\StreamHandler;
 use Monolog\Formatter\LineFormatter;
 use Monolog\Formatter\JsonFormatter;
 
-class LogClient extends Core {
+class LogClient extends Core implements LoggerInterface {
 
     const DEBUG    = 100;        //Logger::DEBUG
     const INFO     = 200;        //Logger::INFO
@@ -23,10 +24,15 @@ class LogClient extends Core {
     const ERROR    = 400;        //Logger::ERROR
     const CRITICAL = 500;        //Logger::CRITICAL
 
-    protected $_logkey       = '';      //无logpre的logkey
-    protected $_logfkey      = '';      //有logpre的logkey
+    protected $_syskey       = '';      //系统标识
+    protected $_logkey       = '';      //Logger 标识
+    protected $_logfkeyDebug = '';      //有logpre的logkey
+    protected $_logfkeyBiz   = '';      //有logpre的logkey
     protected $_logfile      = '';
+    protected $_logfileDebug = '';
+    protected $_logfileBiz   = '';
     protected $_level        = Logger::DEBUG;
+    protected $_ignore       = false;
     protected $_useEs        = true;
     protected $_useFile      = false;
     protected $_useStdout    = false;
@@ -34,13 +40,18 @@ class LogClient extends Core {
     static public $loggers   = [];
     static public $instances = [];
 
-    public function __construct($logkey) {
+    public function __construct($logkey, $syskey = '') {
+        $this->_syskey = $syskey;
         $this->_logkey = $logkey;
         $logdir = Cfg::instance()->get('logdir');
         $logpre = Cfg::instance()->get('logpre');
         $this->_logfkey = "{$logpre}{$logkey}";
+        $this->_logfkeyBiz = sprintf("%s%sbiz-%s", $logpre, $syskey ? $syskey.'-' : '', $logkey);
+        $this->_logfkeyDebug = sprintf("%s%sdebug-%s", $logpre, $syskey ? $syskey.'-' : '', $logkey);
         $this->_queueFile = "{$logdir}/log_queue.log";
         $this->_logfile = "{$logdir}/{$logpre}{$logkey}.log";
+        $this->_logfileBiz = sprintf("%s/%s%sbiz-%s.log", $logdir, $logpre, $syskey ? $syskey.'-' : '', $logkey);
+        $this->_logfileDebug = sprintf("%s/%s%sdebug-%s.log", $logdir, $logpre, $syskey ? $syskey.'-' : '', $logkey);
     }
 
     static public function instance($logkey = 'default') {
@@ -52,21 +63,21 @@ class LogClient extends Core {
     }
 
     public function resetLogger() {
-        unset(self::$loggers[$this->_logkey]);
+        unset(self::$loggers[$this->_logfkeyDebug]);
         $this->logger();
     }
 
     public function logger() {
-        if(!isset(self::$loggers[$this->_logkey])) {
-            $logger = new Logger($this->_logkey);
+        if(!isset(self::$loggers[$this->_logfkeyDebug])) {
+            $logger = new Logger($this->_logfkeyDebug);
 
-            if($this->_useEs)     self::setLoggerEs    ($logger, $this->_logkey, $this->_level);
+            if($this->_useEs)     self::setLoggerEs    ($logger, $this->_logfkeyDebug, $this->_level);
             if($this->_useStdout) self::setLoggerStdout($logger, $this->_level);
-            if($this->_useFile)   self::setLoggerFile  ($logger, $this->_logfile, $this->_level);
+            if($this->_useFile)   self::setLoggerFile  ($logger, $this->_logfileDebug, $this->_level);
 
-            self::$loggers[$this->_logkey] = $logger;
+            self::$loggers[$this->_logfkeyDebug] = $logger;
         }
-        return self::$loggers[$this->_logkey];
+        return self::$loggers[$this->_logfkeyDebug];
     }
 
     static public function setLogger($logkey, $logger, $level = Logger::DEBUG) {
@@ -100,78 +111,102 @@ class LogClient extends Core {
         $this->resetLogger();
         return $this;
     }
-
     public function useFile($flag = false) {
         $this->_useFile = $flag ? true : false;
         $this->resetLogger();
         return $this;
     }
-
     public function useStdout($flag = false) {
         $this->_useStdout = $flag ? true : false;
         $this->resetLogger();
         return $this;
     }
-
     public function useEs($flag = true) {
         $this->_useEs = $flag ? true : false;
         $this->resetLogger();
         return $this;
     }
+    public function ignore($flag = false) {
+        $this->_ignore = $flag;
+        return $this;
+    }
+    public function setUuid($uuid = '') {
+        $this->_uuid = $uuid;
+        return $this;
+    }
+    //封装message, 添加请求ID前缀
+    public function wrapMessage($message) {
+        return $this->_uuid ? $this->_uuid." ".$message : $message;
+    }
 
     public function add($row) {
+        if($this->_ignore) return;
         $now = date("Y-m-d H:i:s");
         if($this->_useEs) {
-            $body = json_encode($row, JSON_UNESCAPED_UNICODE);
-            $result = LogQueue::instance('client')->usePut($this->_logfkey, $body);
-            if(!$result) file_put_contents($this->_queueFile, "{$now}\t{$this->_logfkey}\t{$body}\n", FILE_APPEND);
+            $body = json_encode($row, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+            $result = LogQueue::instance('client')->usePut($this->_logfkeyBiz, $body);
+            if(!$result) file_put_contents($this->_queueFile, "{$now}\t{$this->_logfkeyBiz}\t{$body}\n", FILE_APPEND);
             return $result;
         }
         if($this->_useFile) {
-            $body = json_encode($row, JSON_UNESCAPED_UNICODE);
-            file_put_contents($this->_logfile, "{$now}\t{$this->_logfkey}\t{$body}\n", FILE_APPEND);
+            $body = json_encode($row, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+            file_put_contents($this->_logfileBiz, "{$now}\t{$this->_logfkeyBiz}\t{$body}\n", FILE_APPEND);
         }
         if($this->_useStdout) {
-            $body = json_encode($row, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-            print_r("{$now}\t{$this->_logfkey}\t{$body}\n");
+            $body = json_encode($row, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+            print_r("{$now}\t{$this->_logfkeyBiz}\t{$body}\n");
         }
     }
 
     public function emergency($message, array $context = array()) {
-        $this->logger()->emergency($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->emergency($this->wrapMessage($message), $context);
     }
     public function emerg($message, array $context = array()) {
-        $this->logger()->emerg($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->emerg($this->wrapMessage($message), $context);
     }
     public function alert($message, array $context = array()) {
-        $this->logger()->alert($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->alert($this->wrapMessage($message), $context);
     }
     public function critical($message, array $context = array()) {
-        $this->logger()->critical($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->critical($this->wrapMessage($message), $context);
     }
     public function crit($message, array $context = array()) {
-        $this->logger()->crit($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->crit($this->wrapMessage($message), $context);
     }
     public function error($message, array $context = array()) {
-        $this->logger()->error($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->error($this->wrapMessage($message), $context);
     }
     public function err($message, array $context = array()) {
-        $this->logger()->err($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->err($this->wrapMessage($message), $context);
     }
     public function warning($message, array $context = array()) {
-        $this->logger()->warning($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->warning($this->wrapMessage($message), $context);
     }
     public function warn($message, array $context = array()) {
-        $this->logger()->warn($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->warn($this->wrapMessage($message), $context);
     }
     public function notice($message, array $context = array()) {
-        $this->logger()->notice($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->notice($this->wrapMessage($message), $context);
     }
     public function info($message, array $context = array()) {
-        $this->logger()->info($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->info($this->wrapMessage($message), $context);
     }
     public function debug($message, array $context = array()) {
-        $this->logger()->debug($message, $context);
+        if($this->_ignore) return;
+        $this->logger()->debug($this->wrapMessage($message), $context);
+    }
+    public function log($level, $message, array $context = array()) {
     }
 
 }

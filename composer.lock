@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a2a9ca2f995e8c5ee502bfd9570ec93b",
+    "content-hash": "85962e81be9ad92292fac708238a7e1b",
     "packages": [
         {
             "name": "elasticsearch/elasticsearch",
@@ -184,16 +184,16 @@
         },
         {
             "name": "jingwu/phpbeanstalk",
-            "version": "0.1.8",
+            "version": "0.1.9",
             "source": {
                 "type": "git",
                 "url": "https://github.com/jingwu15/phpbeanstalk.git",
-                "reference": "1d2e98d6ff9c914ed0b7bdd8ae8275ef9c8fa855"
+                "reference": "f111f858316a4afd8b336eb6a856f27068a12fe8"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/jingwu15/phpbeanstalk/zipball/1d2e98d6ff9c914ed0b7bdd8ae8275ef9c8fa855",
-                "reference": "1d2e98d6ff9c914ed0b7bdd8ae8275ef9c8fa855",
+                "url": "https://api.github.com/repos/jingwu15/phpbeanstalk/zipball/f111f858316a4afd8b336eb6a856f27068a12fe8",
+                "reference": "f111f858316a4afd8b336eb6a856f27068a12fe8",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -231,7 +231,7 @@
                 "beanstalk",
                 "queue"
             ],
-            "time": "2020-02-03T11:23:50+00:00"
+            "time": "2020-02-16T16:59:49+00:00"
         },
         {
             "name": "monolog/monolog",
@@ -319,16 +319,16 @@
         },
         {
             "name": "psr/log",
-            "version": "1.1.2",
+            "version": "1.1.3",
             "source": {
                 "type": "git",
                 "url": "https://github.com/php-fig/log.git",
-                "reference": "446d54b4cb6bf489fc9d75f55843658e6f25d801"
+                "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/php-fig/log/zipball/446d54b4cb6bf489fc9d75f55843658e6f25d801",
-                "reference": "446d54b4cb6bf489fc9d75f55843658e6f25d801",
+                "url": "https://api.github.com/repos/php-fig/log/zipball/0f73288fd15629204f9d42b7055f72dacbe811fc",
+                "reference": "0f73288fd15629204f9d42b7055f72dacbe811fc",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -368,20 +368,20 @@
                 "psr",
                 "psr-3"
             ],
-            "time": "2019-11-01T11:05:21+00:00"
+            "time": "2020-03-23T09:12:05+00:00"
         },
         {
             "name": "react/promise",
-            "version": "v2.7.1",
+            "version": "v2.8.0",
             "source": {
                 "type": "git",
                 "url": "https://github.com/reactphp/promise.git",
-                "reference": "31ffa96f8d2ed0341a57848cbb84d88b89dd664d"
+                "reference": "f3cff96a19736714524ca0dd1d4130de73dbbbc4"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/reactphp/promise/zipball/31ffa96f8d2ed0341a57848cbb84d88b89dd664d",
-                "reference": "31ffa96f8d2ed0341a57848cbb84d88b89dd664d",
+                "url": "https://api.github.com/repos/reactphp/promise/zipball/f3cff96a19736714524ca0dd1d4130de73dbbbc4",
+                "reference": "f3cff96a19736714524ca0dd1d4130de73dbbbc4",
                 "shasum": "",
                 "mirrors": [
                     {
@@ -394,7 +394,7 @@
                 "php": ">=5.4.0"
             },
             "require-dev": {
-                "phpunit/phpunit": "~4.8"
+                "phpunit/phpunit": "^7.0 || ^6.5 || ^5.7 || ^4.8.36"
             },
             "type": "library",
             "autoload": {
@@ -420,7 +420,7 @@
                 "promise",
                 "promises"
             ],
-            "time": "2019-01-07T21:25:54+00:00"
+            "time": "2020-05-12T15:16:56+00:00"
         }
     ],
     "packages-dev": [],
@@ -432,5 +432,6 @@
     "platform": {
         "php": ">=5.4.0"
     },
-    "platform-dev": []
+    "platform-dev": [],
+    "plugin-api-version": "1.1.0"
 }

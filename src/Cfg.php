@@ -124,5 +124,48 @@ class Cfg extends Core {
         return ['code' => 1, "error" => "ok"];
     }
 
+    static public function setFromConf($cfg) {
+        $cfgObj = Cfg::instance();
+        $flumeApis = $esApis = $mails = [];
+        $cfgBs = $cfg['beanstalk'];
+        $bsHost = isset($cfgBs['host']) ? trim($cfgBs['host']) : null;
+        $bsPort = isset($cfgBs['port']) ? trim($cfgBs['port']) : null;
+        $logdir = isset($cfg['base']) && isset($cfg['base']['logdir']) ? trim($cfg['base']['logdir']) : '';
+        $logpre = isset($cfg['base']) && isset($cfg['base']['logpre']) ? trim($cfg['base']['logpre']) : '';
+        $mailInterval = isset($cfg['mail']) && isset($cfg['mail']['interval']) ? intval($cfg['mail']['interval']) : 0;
+        if(isset($cfg['flume'])) {
+            foreach($cfg['flume'] as $key => $value) if(substr($key, 0, 3) == 'api') $flumeApis[] = $value;
+        }
+        if(isset($cfg['es'])) {
+            foreach($cfg['es'] as $key => $value) if(substr($key, 0, 3) == 'api') $esApis[] = $value;
+        }
+        if(isset($cfg['mail']) && isset($cfg['mail']['mails'])) {
+            $mails = explode(",", $cfg['mail']['mails']);
+            foreach($mails as &$mail) $mail = trim($mail);
+        }
+        $mqEsdoc = [];
+        $cfgEsdocMqMap = isset($cfg['esdoc_mq_map']) ? $cfg['esdoc_mq_map'] : [];
+        foreach($cfgEsdocMqMap as $esdoc => $line) {
+            if(!$line) continue;
+            $rows = explode(',', $line);
+            foreach($rows as $mq) {
+                $mqEsdoc[$logpre.trim($mq)] = $esdoc;
+            }
+        }
+        $limitWrite = isset($cfg['limit']) && isset($cfg['limit']['limit_write']) ? intval($cfg['limit']['limit_write']) : 5000;
+        $bodySizeMax = isset($cfg['limit']) && isset($cfg['limit']['body_size_max']) ? intval($cfg['limit']['body_size_max']) : (64 * 1024);
+
+        if($bsHost && $bsPort) $cfgObj->setBeanstalk($bsHost, $bsPort);
+        if($esApis)       $cfgObj->setEs($esApis);
+        if($mails)        $cfgObj->setMails($mails);
+        if($logdir)       $cfgObj->setLogdir($logdir);
+        if($logpre)       $cfgObj->setLogpre($logpre);
+        if($flumeApis)    $cfgObj->setFlume($flumeApis);
+        if($mailInterval) $cfgObj->setMailInterval($mailInterval);
+        if($limitWrite)   $cfgObj->setLimitWrite($limitWrite);
+        if($mqEsdoc)      $cfgObj->setMqEsdoc($mqEsdoc);
+        if($bodySizeMax)  $cfgObj->setBodySizeMax($bodySizeMax);
+    }
+
 }
 
