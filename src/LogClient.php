@@ -33,8 +33,8 @@ class LogClient extends Core implements LoggerInterface {
     protected $_logfileBiz   = '';
     protected $_level        = Logger::DEBUG;
     protected $_ignore       = false;
-    protected $_useEs        = true;
-    protected $_useFile      = false;
+    protected $_useEs        = false;
+    protected $_useFile      = true;
     protected $_useStdout    = false;
     protected $_queueFile    = '';
     static public $loggers   = [];
@@ -71,7 +71,8 @@ class LogClient extends Core implements LoggerInterface {
         if(!isset(self::$loggers[$this->_logfkeyDebug])) {
             $logger = new Logger($this->_logfkeyDebug);
 
-            if($this->_useEs)     self::setLoggerEs    ($logger, $this->_logfkeyDebug, $this->_level);
+            //禁用ES，由文件写入ES
+            //if($this->_useEs)     self::setLoggerEs    ($logger, $this->_logfkeyDebug, $this->_level);
             if($this->_useStdout) self::setLoggerStdout($logger, $this->_level);
             if($this->_useFile)   self::setLoggerFile  ($logger, $this->_logfileDebug, $this->_level);
 
@@ -122,9 +123,11 @@ class LogClient extends Core implements LoggerInterface {
         return $this;
     }
     public function useEs($flag = true) {
-        $this->_useEs = $flag ? true : false;
-        $this->resetLogger();
+        //禁用ES，由文件写入ES
         return $this;
+        //$this->_useEs = $flag ? true : false;
+        //$this->resetLogger();
+        //return $this;
     }
     public function ignore($flag = false) {
         $this->_ignore = $flag;
