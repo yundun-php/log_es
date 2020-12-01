@@ -37,6 +37,7 @@ class LogClient extends Core implements LoggerInterface {
     protected $_useFile      = true;
     protected $_useStdout    = false;
     protected $_queueFile    = '';
+    protected $_uuid         = '';
     static public $loggers   = [];
     static public $instances = [];
 
